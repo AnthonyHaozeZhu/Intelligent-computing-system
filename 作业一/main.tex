@@ -1,0 +1,185 @@
+%! Tex program = xelatex   
+\documentclass{homework}
+\usepackage{xeCJK}
+\usepackage{amsmath}
+\usepackage{booktabs} %表格
+% \setmainfont{Times New Roman}
+\setCJKmainfont{Kaiti SC}
+% \setCJKfamilyfont{song}{Songti SC}
+% \renewcommand{\baselinestretch}{1.5} %行间距
+\author{朱浩泽 1911530}
+\class{智能计算系统作业一}
+\date{\today}
+\title{\Large{智能计算系统第一次作业}}
+
+\graphicspath{{./media/}}
+
+\begin{document} \maketitle
+
+\question \large{假设只有一个隐层的多层感知机,其输入、隐层、输出层的神经元个数分别为33、512、10,那么这个多层感知机总共有多少个参数是可以被训练的?}\\
+
+\normalsize
+答：有$33\times 512+512\times 10 +2 = 22018$个参数是可以被训练的。
+\\ 
+\\ 
+\\ 
+\\ 
+
+
+\question \large{
+	$$
+	W^{(1)} = 
+	\begin{bmatrix}
+		w^{(1)}_{1, 1}& w^{(1)}_{1, 2}& w^{(1)}_{1, 3}&\\
+		w^{(1)}_{2, 1}& w^{(1)}_{2, 2}& w^{(1)}_{2, 3}&\\
+		w^{(1)}_{3, 1}& w^{(1)}_{3, 2}& w^{(1)}_{3, 3}&\\
+	\end{bmatrix}
+	= 
+	\begin{bmatrix}
+		0.25& 0.15& 0.30\\
+		0.25& 0.20& 0.35\\
+		0.10& 0.25& 0.15
+	\end{bmatrix}
+	$$
+	假定输入数据 $x_1 = 0.02, x_2 = 0.04, x_3 = 0.01$\\
+	截距 $b_1 = 0.4, b_2 = 0.7$\\
+	期望输出 $y_1 = 0.9, y_2 = 0.5$
+$$
+W^{(1)} = 
+\begin{bmatrix}
+	w^{(1)}_{1, 1}& w^{(1)}_{1, 2}& w^{(1)}_{1, 3}&\\
+	w^{(1)}_{2, 1}& w^{(1)}_{2, 2}& w^{(1)}_{2, 3}&\\
+	w^{(1)}_{3, 1}& w^{(1)}_{3, 2}& w^{(1)}_{3, 3}&\\
+\end{bmatrix}
+= 
+\begin{bmatrix}
+	0.25& 0.15& 0.30\\
+	0.25& 0.20& 0.35\\
+	0.10& 0.25& 0.15
+\end{bmatrix}
+W^{(2)} = 
+\begin{bmatrix}
+	w^{(1)}_{1, 1}& w^{(1)}_{1, 2}\\
+	w^{(1)}_{2, 1}& w^{(1)}_{2, 2}\\
+	w^{(1)}_{3, 1}& w^{(1)}_{3, 2}\\
+\end{bmatrix}
+= 
+\begin{bmatrix}
+	0.40& 0.25\\
+	0.35& 0.30\\
+	0.01& 0.35
+\end{bmatrix}
+$$
+}\\ 
+\normalsize
+\\
+答：输入到隐藏层计算
+\begin{align*}
+	v = 
+	\begin{bmatrix}
+		v_1\\
+		v_2\\
+		v_3
+	\end{bmatrix}
+	= w^{(1)^T}x+b_1
+	=
+	\begin{bmatrix}
+		0.25& 0.15& 0.30\\
+		0.25& 0.20& 0.35\\
+		0.10& 0.25& 0.15
+	\end{bmatrix}
+	\begin{bmatrix}
+		0.02\\
+		0.04\\
+		0.01
+	\end{bmatrix}
+	+0.4
+	=
+	\begin{bmatrix}
+		0.416\\
+		0.4135\\
+		0.4215
+	\end{bmatrix}
+\end{align*}
+\begin{align*}
+	h = 
+	\begin{bmatrix}
+		h_1\\
+		h_2\\
+		h_3
+	\end{bmatrix}
+	= 1+ \frac{1}{1 + e^{-v}}
+	= 
+	\begin{bmatrix}
+		1+ \frac{1}{1 + e^{-0.416}}\\
+		1+ \frac{1}{1 + e^{-0.4135}}\\
+		1+ \frac{1}{1 + e^{-0.4215}}
+	\end{bmatrix}
+	= 
+	\begin{bmatrix}
+		0.6025\\
+		0.6019\\
+		0.6038
+	\end{bmatrix}
+\end{align*}
+隐含层到输出层计算
+$$
+\begin{bmatrix}
+	z_1\\z_2
+\end{bmatrix}
+=W^{(2)^T}h + b_2 = 
+\begin{bmatrix}
+	0.40& 0.35& 0.01\\
+	0.25& 0.30& 0.35
+\end{bmatrix}
+\begin{bmatrix}
+	0.6025\\ 0.6019\\ 0.6038
+\end{bmatrix}
++0.7 = 
+\begin{bmatrix}
+	1.1577\\ 1.2425
+\end{bmatrix}
+$$
+$$
+\hat{y} = 
+\begin{bmatrix}
+	\hat{y_1}\\ \hat{{y_2}}
+\end{bmatrix}
+= \frac{1}{1 + e^{-z}}
+= 
+\begin{bmatrix}
+	\frac{1}{1 + e^{-1.1577}} \\
+	\frac{1}{1 + e^{-1.2425}}
+\end{bmatrix}
+=
+\begin{bmatrix}
+	0.7609\\ 0.7760
+\end{bmatrix}
+$$
+误差
+\begin{align*}
+	L(w) = &L_1 + L_2 = \frac{1}{2}(y_1 - \hat{y_1})^2 + \frac{1}{2}(y_2-\hat{y_2})^2\\
+	= &\frac{1}{2}(0.7609-0.9)^2 +\frac{1}{2}(0.7760 -0.5)^2\\
+	=& 0.0478
+\end{align*}
+误差相对较大，进行反向传播更新\\
+记$w_{2,2}$为$w$\\ 
+$$
+L(w) = L_1+L_2 = \frac{1}{2} (y_1 - \hat{y} _1)^2 + \frac{1}{2}(y_2 - \hat{y}_2)^2
+$$
+\begin{align*}
+	\frac{\partial L(w)}{\partial w} &= \frac{\partial L(w)}{\partial \hat{y}_1}\cdot \frac{\partial \hat{y}_1}{\partial t_1}\cdot 
+	\frac{\partial z_1}{\partial h_2} \cdot 
+	\frac{\partial h_2}{\partial v_2}\cdot 
+	\frac{\partial v_1}{\partial w}
+	+ 
+	\frac{\partial L(w)}{\partial \hat{y}_2}\cdot 
+	\frac{\partial \hat{y_2}}{\partial z_2}\cdot 
+	\frac{\partial z_2}{\partial h_2}\cdot 
+	\frac{\partial h_2}{\partial v_2}\cdot 
+	\frac{\partial v_2}{\partial w}\\ 
+	&=0.6019\times 0.2987\times 0.04\times (-0.3191\times 0.1819\times 0.35 + 0.2760 \times 0.7760 \times 0.2240\times 0.3)\\ 
+	& = 0.00005307\\ 
+	w & = w - \partial \times \frac{\partial L(w)}{\partial w} = 0.2 - 0.00005 \approx 0.20  
+\end{align*}
+\end{document}

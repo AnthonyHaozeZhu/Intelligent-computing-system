@@ -3,3 +3,4 @@ PPT
 *.aux
 *.out
 *.gz
+.DS_Store

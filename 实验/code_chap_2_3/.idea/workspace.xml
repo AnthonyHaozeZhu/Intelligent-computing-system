@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="fb13ff36-29ed-4240-bb9b-9db31278bec0" name="变更" comment="">
+      <change beforePath="$PROJECT_DIR$/code_chap_2_3_student/exp_2_1_mnist_mlp/stu_upload/layers_1.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/code_chap_2_3_student/exp_2_2_mnist_mlp_dlp/stu_upload/layers_1.py" beforeDir="false" afterPath="$PROJECT_DIR$/code_chap_2_3_student/exp_2_2_mnist_mlp_dlp/stu_upload/layers_1.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/code_chap_2_3_student/exp_2_2_mnist_mlp_dlp/stu_upload/mnist_mlp_cpu.py" beforeDir="false" afterPath="$PROJECT_DIR$/code_chap_2_3_student/exp_2_2_mnist_mlp_dlp/stu_upload/mnist_mlp_cpu.py" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/../.." />
+  </component>
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
+  </component>
+  <component name="ProjectId" id="27ds3B1GZ81H2LbRMYeElh5iwrK" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
+    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="TODO_SCOPE" value="所有位置" />
+    <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="node.js.detected.package.eslint" value="true" />
+    <property name="node.js.selected.package.eslint" value="(autodetect)" />
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="应用程序级" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="默认任务">
+      <changelist id="fb13ff36-29ed-4240-bb9b-9db31278bec0" name="变更" comment="" />
+      <created>1649661097999</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1649661097999</updated>
+      <workItem from="1649661099385" duration="789000" />
+      <workItem from="1649662057650" duration="651000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+</project>

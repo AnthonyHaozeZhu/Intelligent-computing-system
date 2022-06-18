@@ -55,13 +55,13 @@ def train(args):
         # labels_temp = jittor.array(np.array([num for _ in range(n_row) for num in range(n_row)])).float32().stop_grad()
         # gen_imgs = generator(jittor.array(np.random.normal(0, 1, (n_row ** 2, opt.latent_dim))).float32().stop_grad())
         gen_imgs = generator(torch.randn(100, 100).to(args.device)).to("cpu")
-        path = "example/%d.png" + str(batches_done) + ".png"
+        path = "example/" + str(batches_done) + ".png"
         save_image(gen_imgs.numpy(), os.path.join(args.logdir, path), nrow=n_row)
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument("--Gan_data_path", default="./Market1501/bounding_box_train", type=str, help="The input data dir")
+    parser.add_argument("--Gan_data_path", default="./Market1501/pre_load", type=str, help="The input data dir")
     parser.add_argument("--logdir", default="./log", type=str)
     parser.add_argument("--epochs", default=100, type=int)
     parser.add_argument("--device", default='cpu', type=str)

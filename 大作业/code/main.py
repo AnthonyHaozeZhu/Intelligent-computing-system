@@ -8,31 +8,29 @@
 
 import argparse
 
-import \
-    torch
-
 from utils import *
 from data import *
 from model import *
 
 from tqdm import tqdm
+import os
 
 
 def train(args):
     for i in range(args.epochs):
-        train_tqdm = tqdm(enumerate(gan_loader), desc="Epoch " + str(i))
-        for index, real_imgs in train_tqdm:
-            real_imgs.to(args.device)
+        train_tqdm = tqdm(gan_loader, desc="Epoch " + str(i))
+        for index, real_imgs in enumerate(train_tqdm):
+            real_imgs = real_imgs.to(args.device)
             optimizer_G.zero_grad()
             noise = torch.randn((real_imgs.shape[0], 100)).to(args.device)
             label_fake = torch.ones((real_imgs.shape[0], 1)).to(args.device)
             label_real = torch.zeros((real_imgs.shape[0], 1)).to(args.device)
 
-            fake_imgs = generator(noise)
+            fake_imgs = generator(noise).detach()
 
             predict = discriminator(fake_imgs)
             lossG = criterion(predict, label_fake)
-            # lossG.backward()
+            lossG.backward()
 
             optimizer_G.step()
 
@@ -43,25 +41,28 @@ def train(args):
             predict_fake = discriminator(fake_imgs)
             lossD_fake = criterion(predict_fake, label_fake)
             lossD = (lossD_fake + lossD_real) / 2
-            # lossD.backward()
+            lossD.backward()
+            train_tqdm.set_postfix({"lossD": "%.3g" % lossD.item(), "lossG": "%.3g" % lossG.item()})
 
             optimizer_D.step()
 
-        if i % 10 == 0:
-            print("Save example gen-image and model")
-            generator.save("saved_models/generator_last.pkl")
-            discriminator.save("saved_models/discriminator_last.pkl")
-            n_row = 10
-            batches_done = i
-            # labels_temp = jittor.array(np.array([num for _ in range(n_row) for num in range(n_row)])).float32().stop_grad()
-            # gen_imgs = generator(jittor.array(np.random.normal(0, 1, (n_row ** 2, opt.latent_dim))).float32().stop_grad())
-            gen_imgs = generator(torch.randn(100, 100))
-            save_image(gen_imgs.numpy(), "./example/%d.png" % batches_done, nrow=n_row)
+        # if i % 10 == 0:
+        print("Save example gen-image and model")
+        torch.save(generator.state_dict(), os.path.join(args.logdir, "saved_models/generator_last.pt"))
+        torch.save(discriminator.state_dict(), os.path.join(args.logdir, "saved_models/discriminator_last.pt"))
+        n_row = 10
+        batches_done = i
+        # labels_temp = jittor.array(np.array([num for _ in range(n_row) for num in range(n_row)])).float32().stop_grad()
+        # gen_imgs = generator(jittor.array(np.random.normal(0, 1, (n_row ** 2, opt.latent_dim))).float32().stop_grad())
+        gen_imgs = generator(torch.randn(100, 100).to(args.device)).to("cpu")
+        path = "example/%d.png" + str(batches_done) + ".png"
+        save_image(gen_imgs.numpy(), os.path.join(args.logdir, path), nrow=n_row)
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("--Gan_data_path", default="./Market1501/bounding_box_train", type=str, help="The input data dir")
+    parser.add_argument("--logdir", default="./log", type=str)
     parser.add_argument("--epochs", default=100, type=int)
     parser.add_argument("--device", default='cpu', type=str)
     parser.add_argument("--batch_size", default=32, type=int)
@@ -71,6 +72,11 @@ if __name__ == '__main__':
     parser.add_argument("--img_h", default=128, type=int)
 
     args = parser.parse_args()
+
+    if not os.path.exists(args.logdir):
+        os.makedirs(args.logdir)
+        os.makedirs(os.path.join(args.logdir, "saved_models"))
+        os.makedirs(os.path.join(args.logdir, "example"))
 
     gan_loader = DataLoader(GanLoader(args), batch_size=args.batch_size, shuffle=True)
 

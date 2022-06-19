@@ -7,6 +7,7 @@
 """
 
 import argparse
+from torch.autograd import Variable
 
 from utils import *
 from data import *
@@ -20,31 +21,30 @@ def train(args):
     for i in range(args.epochs):
         train_tqdm = tqdm(gan_loader, desc="Epoch " + str(i))
         for index, real_imgs in enumerate(train_tqdm):
-            real_imgs = real_imgs.to(args.device)
+            valid = Variable(torch.FloatTensor(real_imgs.shape[0], 1).fill_(1.0), requires_grad=False).to(args.device)
+            fake = Variable(torch.FloatTensor(real_imgs.shape[0], 1).fill_(0.0), requires_grad=False).to(args.device)
+
             optimizer_G.zero_grad()
-            noise = torch.randn((real_imgs.shape[0], 100)).to(args.device)
-            label_fake = torch.ones((real_imgs.shape[0], 1)).to(args.device)
-            label_real = torch.zeros((real_imgs.shape[0], 1)).to(args.device)
 
-            fake_imgs = generator(noise).detach()
+            z = Variable(torch.FloatTensor(np.random.normal(0, 1, (real_imgs.shape[0], 100)))).to(args.device)
+            gen_imgs = generator(z)
+            g_loss = adversarial_loss(discriminator(gen_imgs), valid)
 
-            predict = discriminator(fake_imgs)
-            lossG = criterion(predict, label_fake)
-            lossG.backward()
-
+            g_loss.backward()
             optimizer_G.step()
 
-            # 判别器部分
             optimizer_D.zero_grad()
-            predict_real = discriminator(real_imgs)
-            lossD_real = criterion(predict_real, label_real)
-            predict_fake = discriminator(fake_imgs)
-            lossD_fake = criterion(predict_fake, label_fake)
-            lossD = (lossD_fake + lossD_real) / 2
-            lossD.backward()
-            train_tqdm.set_postfix({"lossD": "%.3g" % lossD.item(), "lossG": "%.3g" % lossG.item()})
 
+            real_dis = discriminator(real_imgs.to(args.device))
+            fake_dis = discriminator(gen_imgs.detach())
+            real_loss = adversarial_loss(real_dis, valid)
+            fake_loss = adversarial_loss(fake_dis, fake)
+            d_loss = (real_loss + fake_loss) / 2
+
+            d_loss.backward()
             optimizer_D.step()
+
+            train_tqdm.set_postfix({"lossD": "%.3g" % d_loss.detch().item(), "lossG": "%.3g" % g_loss.detch().item()})
 
         # if i % 10 == 0:
         print("Save example gen-image and model")
@@ -52,11 +52,9 @@ def train(args):
         torch.save(discriminator.state_dict(), os.path.join(args.logdir, "saved_models/discriminator_last.pt"))
         n_row = 10
         batches_done = i
-        # labels_temp = jittor.array(np.array([num for _ in range(n_row) for num in range(n_row)])).float32().stop_grad()
-        # gen_imgs = generator(jittor.array(np.random.normal(0, 1, (n_row ** 2, opt.latent_dim))).float32().stop_grad())
         gen_imgs = generator(torch.randn(100, 100).to(args.device)).to("cpu")
         path = "example/" + str(batches_done) + ".png"
-        save_image(gen_imgs.numpy(), os.path.join(args.logdir, path), nrow=n_row)
+        save_image(gen_imgs.detach().numpy(), os.path.join(args.logdir, path), nrow=n_row)
 
 
 if __name__ == '__main__':
@@ -65,8 +63,8 @@ if __name__ == '__main__':
     parser.add_argument("--logdir", default="./log", type=str)
     parser.add_argument("--epochs", default=100, type=int)
     parser.add_argument("--device", default='cpu', type=str)
-    parser.add_argument("--batch_size", default=32, type=int)
-    parser.add_argument("--learning_rate", default=0.001, type=float)
+    parser.add_argument("--batch_size", default=128, type=int)
+    parser.add_argument("--learning_rate", default=0.0002, type=float)
     parser.add_argument("--channels", default=3, type=int, help="The number of channels of the image")
     parser.add_argument("--img_w", default=256, type=int)
     parser.add_argument("--img_h", default=128, type=int)
@@ -86,7 +84,8 @@ if __name__ == '__main__':
     optimizer_G = torch.optim.Adam(generator.parameters(), lr=args.learning_rate, betas=(0.5, 0.999))
     optimizer_D = torch.optim.Adam(discriminator.parameters(), lr=args.learning_rate, betas=(0.5, 0.999))
 
-    criterion = nn.MSELoss()
+    # criterion = nn.MSELoss()
+    adversarial_loss = nn.MSELoss().to(args.device)
 
     train(args)
 

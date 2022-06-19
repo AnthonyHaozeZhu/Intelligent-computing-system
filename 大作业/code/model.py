@@ -1,6 +1,6 @@
 # -*- coding: UTF-8 -*-
 """
-@Project ：code 
+@Project ：code
 @File ：model.py
 @Author ：AnthonyZ
 @Date ：2022/6/18 20:17
@@ -14,24 +14,29 @@ class Generator(nn.Module):
     def __init__(self, opt):
         super(Generator, self).__init__()
         self.args = opt
-        self.linear1 = nn.Linear(100, 128)
-        self.linear2 = nn.Linear(128, 256)
-        self.batch_normal1 = nn.BatchNorm1d(256, 0.8)
-        self.linear3 = nn.Linear(256, 512)
-        self.batch_normal2 = nn.BatchNorm1d(512, 0.8)
-        self.linear4 = nn.Linear(512, 1024)
-        self.batch_normal3 = nn.BatchNorm1d(1024, 0.8)
-        self.linear5 = nn.Linear(1024, int(opt.channels * opt.img_w * opt.img_h))
-        self.relu = nn.LeakyReLU(0.2)
-        self.tanh = nn.Tanh()
+        self.linear1 = nn.Linear(100, 4 * 4 * 16)
+        self.conv1 = nn.ConvTranspose2d(in_channels=4, out_channels=64, stride=(2, 2), kernel_size=(5, 5))
+        self.relu1 = nn.ReLU()
+        self.bn1 = nn.BatchNorm2d(64)
+        self.conv2 = nn.ConvTranspose2d(in_channels=64, out_channels=64, stride=(2, 2), kernel_size=(5, 5))
+        self.relu2 = nn.ReLU()
+        self.bn2 = nn.BatchNorm2d(64)
+        self.conv3 = nn.ConvTranspose2d(in_channels=64, out_channels=64, stride=(2, 2), kernel_size=(5, 5))
+        self.relu3 = nn.ReLU()
+        self.bn3 = nn.BatchNorm2d(64)
+        self.conv4 = nn.ConvTranspose2d(in_channels=64, out_channels=3, stride=(1, 1), kernel_size=(5, 5))
+        self.linear2 = nn.Linear(3*57*153, self.args.channels * self.args.img_w * self.args.img_h)
+        self.Tanh = nn.Tanh()
 
-    def forward(self, noise):
-        x = self.linear1(noise)
-        x = self.linear2(self.relu(x))
-        x = self.linear3(self.relu(self.batch_normal1(x)))
-        x = self.linear4(self.relu(self.batch_normal2(x)))
-        x = self.linear5(self.relu(self.batch_normal3(x)))
-        x = self.tanh(x)
+    def forward(self, x):
+        x = self.linear1(x)
+        x = x.view((-1, 4, 4, 16))
+        x = self.bn1(self.relu1(self.conv1(x)))
+        x = self.bn2(self.relu2(self.conv2(x)))
+        x = self.bn3(self.relu3(self.conv3(x)))
+        x = self.Tanh(self.conv4(x))
+        x = x.view((-1, 3*57*153))
+        x = self.linear2(x)
         x = x.view((-1, self.args.channels, self.args.img_w, self.args.img_h))
         return x
 
@@ -40,18 +45,25 @@ class Discriminator(nn.Module):
     def __init__(self, opt):
         super(Discriminator, self).__init__()
         self.args = opt
-        self.linear1 = nn.Linear((opt.channels * opt.img_w * opt.img_h), 512)
-        self.linear2 = nn.Linear(512, 512)
-        self.linear3 = nn.Linear(512, 512)
-        self.linear4 = nn.Linear(512, 1)
-        self.drop_out = nn.Dropout(0.4)
-        self.relu = nn.LeakyReLU(0.2)
+        self.conv1 = nn.Conv2d(in_channels=3, out_channels=64, kernel_size=(5, 5), stride=(2, 2))
+        self.relu1 = nn.ReLU()
+        self.bn1 = nn.BatchNorm2d(64)
+        self.conv2 = nn.Conv2d(in_channels=64, out_channels=64, kernel_size=(5, 5), stride=(2, 2))
+        self.relu2 = nn.ReLU()
+        self.bn2 = nn.BatchNorm2d(64)
+        self.conv3 = nn.Conv2d(in_channels=64, out_channels=3, kernel_size=(5, 5), stride=(2, 2))
+        self.relu3 = nn.ReLU()
+        self.bn3 = nn.BatchNorm2d(3)
+        self.linear1 = nn.Linear(3*29*13, 256)
+        self.Tanh = nn.Tanh()
+        self.linear2 = nn.Linear(256, 1)
 
-    def forward(self, img):
-        img = img.view((img.shape[0], (-1)))
-        x = self.linear1(img)
-        x = self.linear2(self.relu(x))
-        x = self.linear3(self.drop_out(self.relu(x)))
-        x = self.linear4(self.drop_out(self.relu(x)))
-        return x
+    def forward(self, x):
+        x = self.bn1(self.relu1(self.conv1(x)))
+        x = self.bn2(self.relu2(self.conv2(x)))
+        x = self.bn3(self.relu3(self.conv3(x)))
+        x = x.view(-1, 3*29*13)
+        x = self.linear2(self.Tanh(self.linear1(x)))
+        return torch.sigmoid(x)
+
 

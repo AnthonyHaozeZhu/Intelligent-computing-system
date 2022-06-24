@@ -1,14 +1,26 @@
 # -*- coding: UTF-8 -*-
 """
-@Project ：code 
+@Project ：GAN 
 @File ：utils.py
 @Author ：AnthonyZ
-@Date ：2022/6/18 22:34
+@Date ：2022/6/22 21:10
 """
 
+import os
 import numpy as np
 from PIL import Image
-import os
+
+
+def get_all_image_path(path) -> list:
+    result = []
+    for file in os.listdir(path):
+        p = os.path.join(path, file)
+        if os.path.isdir(p):
+            result += get_all_image_path(p)
+        else:
+            if file.split(".")[-1] == "jpg":
+                result.append(p)
+    return result
 
 
 def save_image(img, path, nrow=10, padding=5):
@@ -37,15 +49,3 @@ def save_image(img, path, nrow=10, padding=5):
     elif C == 1:
         img = img[:, :, 0]
     Image.fromarray(np.uint8(img)).save(path)
-
-
-def get_all_image_path(path) -> list:
-    result = []
-    for file in os.listdir(path):
-        p = os.path.join(path, file)
-        if os.path.isdir(p):
-            result += get_all_image_path(p)
-        else:
-            if file.split(".")[-1] == "jpg":
-                result.append(p)
-    return result

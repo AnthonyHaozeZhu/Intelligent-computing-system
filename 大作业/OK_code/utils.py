@@ -6,9 +6,20 @@
 @Date ：2022/6/18 22:34
 """
 
+import os
 import numpy as np
 from PIL import Image
-import os
+
+def get_all_image_path(path) -> list:
+    result = []
+    for file in os.listdir(path):
+        p = os.path.join(path, file)
+        if os.path.isdir(p):
+            result += get_all_image_path(p)
+        else:
+            if file.split(".")[-1] == "jpg":
+                result.append(p)
+    return result
 
 
 def save_image(img, path, nrow=10, padding=5):
@@ -33,19 +44,8 @@ def save_image(img, path, nrow=10, padding=5):
     img = (img - min_) / (max_ - min_) * 255
     img = img.transpose((1,2,0))
     if C == 3:
-        img = img[:, :, : : -1]
+        img = img[:, :, : : ]
+        # img = np.mean(img, axis=-1)
     elif C == 1:
         img = img[:, :, 0]
     Image.fromarray(np.uint8(img)).save(path)
-
-
-def get_all_image_path(path) -> list:
-    result = []
-    for file in os.listdir(path):
-        p = os.path.join(path, file)
-        if os.path.isdir(p):
-            result += get_all_image_path(p)
-        else:
-            if file.split(".")[-1] == "jpg":
-                result.append(p)
-    return result

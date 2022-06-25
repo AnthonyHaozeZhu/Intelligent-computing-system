@@ -10,14 +10,12 @@ import torch
 from torch.utils.data.dataset import Dataset
 from torch.utils.data.dataloader import DataLoader
 from torchvision.transforms import transforms
-from PIL import Image
 from utils import *
 
 img_transform = transforms.Compose([
     transforms.Resize((64, 64)),
     transforms.CenterCrop((64, 64)),
-    transforms.ToTensor(),  # transform to [0, 1]
-    # transform to [-1, 1]
+    transforms.ToTensor(),
     transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
 ])
 
